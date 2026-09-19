@@ -2,6 +2,8 @@
 <html lang="en"><head><meta charset="utf-8"><title>Qwen3.8-27B playground</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
 <style>
 :root{--bg:#0f1117;--panel:#171a23;--line:#262b38;--fg:#e6e8ef;--mut:#8b93a7;--acc:#7c9cff;--think:#c9a86a;--ok:#4cc38a;--err:#ef6b73}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,Inter,Segoe UI,sans-serif;height:100vh;display:flex;flex-direction:column}
@@ -31,6 +33,7 @@ footer{border-top:1px solid var(--line);padding:12px 20px;background:var(--panel
 #results{padding:20px;overflow:auto}table{border-collapse:collapse;width:100%;max-width:1000px}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--mut)}tr.c{cursor:pointer}tr.c:hover{background:var(--panel)}
 #detail .case{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:8px 0;background:var(--panel)}#detail pre{white-space:pre-wrap;font-size:12px;background:#0d0f15;padding:8px;border-radius:6px;max-height:300px;overflow:auto}
 .hide{display:none}
+.katex-display{overflow-x:auto;padding:4px 0}.katex{font-size:1.05em}
 </style></head><body>
 <header><b>Qwen3.8-27B playground</b>
 <nav><button id="tabChat" class="on">Chat</button><button id="tabRes">Workload results</button></nav>
@@ -59,6 +62,13 @@ footer{border-top:1px solid var(--line);padding:12px 20px;background:var(--panel
 <script>
 const $=s=>document.querySelector(s);const log=$('#log');let history=[],pendingImg=null,ctrl=null;
 marked.setOptions({breaks:true});
+// markdown + LaTeX: pull math out first so markdown cannot mangle it, render with KaTeX, put it back
+function renderMd(text){const M=[];const keep=(s,d)=>{M.push({s,d});return `@@MATH${M.length-1}@@`};
+  text=text.replace(/\\\[([\s\S]+?)\\\]/g,(m,a)=>keep(a,true)).replace(/\$\$([\s\S]+?)\$\$/g,(m,a)=>keep(a,true))
+           .replace(/\\\(([\s\S]+?)\\\)/g,(m,a)=>keep(a,false)).replace(/(^|[^\\$])\$([^\n$]+?)\$(?!\d)/g,(m,p,a)=>p+keep(a,false));
+  let html=marked.parse(text);
+  return html.replace(/@@MATH(\d+)@@/g,(m,i)=>{try{return katex.renderToString(M[i].s,{displayMode:M[i].d,throwOnError:false})}catch(e){return M[i].s}})}
+
 fetch('/api/info').then(r=>r.json()).then(i=>{$('#status').textContent=i.ok?`${i.served} · ctx ${i.max_model_len} · ${i.base_url.replace('https://','')}`:'endpoint unreachable: '+i.error;if(!i.ok)$('#status').classList.add('err')});
 $('#tabChat').onclick=()=>{$('#chat').classList.remove('hide');$('#results').classList.add('hide');$('#tabChat').classList.add('on');$('#tabRes').classList.remove('on')};
 $('#tabRes').onclick=()=>{$('#chat').classList.add('hide');$('#results').classList.remove('hide');$('#tabRes').classList.add('on');$('#tabChat').classList.remove('on');loadResults()};
@@ -84,7 +94,7 @@ async function send(){
     while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
       let i;while((i=buf.indexOf('\n\n'))>=0){const blk=buf.slice(0,i);buf=buf.slice(i+2);const ev=/event: (\w+)/.exec(blk)?.[1];const data=JSON.parse(/data: (.*)/s.exec(blk)[1]);
         if(ev==='reasoning'){think+=data.t;if($('#showthink').checked){th.classList.remove('hide');tt.textContent=think;tt.scrollTop=tt.scrollHeight}}
-        else if(ev==='content'){answer+=data.t;md.innerHTML=marked.parse(answer)}
+        else if(ev==='content'){answer+=data.t;md.innerHTML=renderMd(answer)}
         else if(ev==='tool_call'){tools.appendChild(el(`<div class="tool">🔧 ${data.name}(${JSON.stringify(data.args)})\n→ ${JSON.stringify(data.result)}</div>`))}
         else if(ev==='ttft'){st.textContent=`first token ${data.s.toFixed(2)}s…`}
         else if(ev==='error'){md.innerHTML+=`<p class="err">${data.message}</p>`}
