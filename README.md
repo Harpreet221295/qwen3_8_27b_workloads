@@ -1,11 +1,11 @@
-# qwen_workloads — capability tests for the deployed Qwen3.8-27B
+# qwen3_8_27b_workloads — capability tests for the deployed Qwen3.8-27B
 
 Runs on your Mac against the RunPod endpoint. Every workload is a small script that sends
 requests, saves raw results to `results/<workload>.jsonl`, and prints a summary.
 
 ## Setup
 ```bash
-cd qwen_workloads
+cd qwen3_8_27b_workloads
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env   # fill QWEN_BASE_URL + QWEN_API_KEY
