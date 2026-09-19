@@ -11,6 +11,14 @@ pip install -r requirements.txt
 cp .env.example .env   # fill QWEN_BASE_URL + QWEN_API_KEY
 ```
 
+## Playground UI
+```bash
+.venv/bin/python -m uvicorn ui.app:app --port 7860
+```
+Open http://localhost:7860. Streams the answer and the model's thinking live, thinking-mode selector
+(off / low / medium / xhigh), image attach, optional demo tools (weather, currency, calculator), and a tab
+that browses `results/*.jsonl`. The API key stays in the local server.
+
 ## Run
 ```bash
 python run_all.py                 # everything, summary table at the end
