@@ -20,11 +20,11 @@ def json_schema():
 
 def guided_choice():
     r = c.ask("Is the sentiment of 'I absolutely loved this phone' positive or negative?", max_tokens=5,
-              extra_body={"guided_choice": ["positive", "negative"]})
+              extra_body={"structured_outputs": {"choice": ["positive", "negative"]}, "guided_choice": ["positive", "negative"]})
     return {"ok": r.content.strip() == "positive", "output": r.content, "latency_s": r.latency_s}
 
 def guided_regex():
-    r = c.ask("Give a fake US phone number.", max_tokens=20, extra_body={"guided_regex": r"\(\d{3}\) \d{3}-\d{4}"})
+    r = c.ask("Give a fake US phone number.", max_tokens=20, extra_body={"structured_outputs": {"regex": r"\(\d{3}\) \d{3}-\d{4}"}, "guided_regex": r"\(\d{3}\) \d{3}-\d{4}"})
     import re
     return {"ok": bool(re.fullmatch(r"\(\d{3}\) \d{3}-\d{4}", r.content.strip())), "output": r.content, "latency_s": r.latency_s}
 

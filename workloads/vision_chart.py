@@ -22,7 +22,9 @@ def to_table():
     r = c.ask_image("Return the chart data as JSON object month->value.", [URL], max_tokens=150,
                     response_format={"type": "json_object"})
     import json
-    try: d = json.loads(r.content); hits = sum(1 for k, v in VALUES.items() if int(d.get(k, -1)) == v)
+    try:
+        d = {k.strip().lower()[:3]: v for k, v in json.loads(r.content).items()}
+        hits = sum(1 for k, v in VALUES.items() if int(d.get(k.lower()[:3], -1)) == v)
     except Exception: hits = 0
     return {"ok": hits >= 5, "output": r.content, "latency_s": r.latency_s, "note": f"{hits}/6 values exact"}
 

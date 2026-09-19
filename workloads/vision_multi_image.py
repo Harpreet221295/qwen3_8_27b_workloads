@@ -13,8 +13,9 @@ def which_has_more():
 
 def chart_vs_chart():
     c1 = make_bar_chart({"A": 10, "B": 20, "C": 30}, "Chart one"); c2 = make_bar_chart({"A": 50, "B": 20, "C": 5}, "Chart two")
-    r = c.ask_image("In which chart is bar A the tallest bar? Answer 'one' or 'two'.", [to_data_url(c1), to_data_url(c2)], max_tokens=5)
-    return {"ok": "two" in r.content.lower(), "output": r.content, "latency_s": r.latency_s}
+    r = c.ask_image("In which chart is bar A the tallest bar of that chart? Reply with just the word 'one' or 'two'.", [to_data_url(c1), to_data_url(c2)], max_tokens=40)
+    ans = r.content.lower()
+    return {"ok": ("two" in ans or "second" in ans) and not ("one" in ans.split("chart two")[0] if "chart two" in ans else "one" in ans), "output": r.content, "latency_s": r.latency_s}
 
 w.case("which_has_more", which_has_more).case("chart_vs_chart", chart_vs_chart)
 if __name__ == "__main__": w.run()

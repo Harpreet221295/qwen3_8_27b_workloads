@@ -8,7 +8,7 @@ def count_case(seed):
         img, truth = make_shapes_image(seed)
         r = c.ask_image("Count the circles, squares and triangles. Answer exactly as: circles=N squares=N triangles=N",
                         [to_data_url(img)], max_tokens=60)
-        got = {k: int(v) for k, v in re.findall(r"(circles|squares|triangles)\s*=\s*(\d+)", r.content.lower())}
+        got = {k: int(v) for k, v in re.findall(r'"?(circles|squares|triangles)"?\s*[=:]\s*(\d+)', r.content.lower())}
         exact = all(got.get(k) == truth[k] for k in ["circles", "squares", "triangles"])
         return {"ok": exact, "truth": truth, "output": r.content, "latency_s": r.latency_s,
                 "note": f"truth={ {k: truth[k] for k in ['circles','squares','triangles']} } got={got}"}

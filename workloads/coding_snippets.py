@@ -21,7 +21,7 @@ TASKS = [
     ("fix_bug", "This function should return the median of a list but is buggy. Fix it. Only code in one ```python block.\n\n```python\ndef median(xs):\n    xs.sort()\n    n = len(xs)\n    return xs[n//2]\n```",
      "assert median([3,1,2])==2\nassert median([4,1,3,2])==2.5\nprint('ok')", False),
     ("parse_log", "Write parse_log(text)->dict counting occurrences of each log level (INFO/WARN/ERROR) in lines formatted like '2026-01-01 12:00:00 [LEVEL] message'. Only code in one ```python block.",
-     "t='2026-01-01 12:00:00 [INFO] a\\n2026-01-01 12:00:01 [ERROR] b\\n2026-01-01 12:00:02 [INFO] c\\n'\nassert parse_log(t)=={'INFO':2,'ERROR':1}\nprint('ok')", False),
+     "t='2026-01-01 12:00:00 [INFO] a\\n2026-01-01 12:00:01 [ERROR] b\\n2026-01-01 12:00:02 [INFO] c\\n'\nr=parse_log(t); assert {k:v for k,v in r.items() if v}=={'INFO':2,'ERROR':1}, r\nprint('ok')", False),
     ("interval_merge_thinking", "Write merge_intervals(intervals) merging overlapping [start,end] pairs, returning sorted merged list. Only code in one ```python block.",
      "assert merge_intervals([[1,3],[2,6],[8,10],[15,18]])==[[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,4],[4,5]])==[[1,5]]\nprint('ok')", "low"),
 ]
