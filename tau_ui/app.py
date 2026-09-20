@@ -34,12 +34,19 @@ from tau2.orchestrator import orchestrator as om
 from tau2.orchestrator.orchestrator import Orchestrator
 from tau2.evaluator.evaluator import EvaluationType, evaluate_simulation
 
-# --- NL-assertion judge: tau2 defaults to gpt-4.1 (needs an OpenAI key). Route it to our endpoint unless TAU2_JUDGE_* say otherwise.
+# --- NL-assertion judge. Official τ²-bench uses gpt-4.1. If OPENAI_API_KEY is set we do the same; otherwise our own endpoint
+# judges (indicative only). Override with TAU2_JUDGE_MODEL / TAU2_JUDGE_API_BASE / TAU2_JUDGE_API_KEY.
 from tau2.evaluator import evaluator_nl_assertions as _nl
-_nl.DEFAULT_LLM_NL_ASSERTIONS = os.environ.get("TAU2_JUDGE_MODEL", LLM)
-_nl.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {"temperature": 0.0, "api_base": os.environ.get("TAU2_JUDGE_API_BASE", BASE_URL),
-                                      "api_key": os.environ.get("TAU2_JUDGE_API_KEY", API_KEY),
-                                      "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}}
+_have_openai = bool(os.environ.get("OPENAI_API_KEY"))
+JUDGE_MODEL = os.environ.get("TAU2_JUDGE_MODEL", "gpt-4.1-2025-04-14" if _have_openai else LLM)
+_nl.DEFAULT_LLM_NL_ASSERTIONS = JUDGE_MODEL
+if JUDGE_MODEL.startswith("openai/") or os.environ.get("TAU2_JUDGE_API_BASE"):
+    _nl.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {"temperature": 0.0, "api_base": os.environ.get("TAU2_JUDGE_API_BASE", BASE_URL),
+                                          "api_key": os.environ.get("TAU2_JUDGE_API_KEY", API_KEY),
+                                          "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}}
+else:
+    _nl.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {"temperature": 0.0}          # real OpenAI via OPENAI_API_KEY
+
 from tau2.user.user_simulator import UserSimulator, UserState
 from tau2.data_model.message import UserMessage, AssistantMessage, ToolMessage
 
