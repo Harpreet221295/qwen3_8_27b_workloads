@@ -18,3 +18,13 @@ Endpoint: Qwen/Qwen3.8-27B BF16 on 1× A100 SXM 80GB (RunPod), vLLM latest, max-
 | streaming | 2/2 | 5.1 | TTFT ≈ 0.2 s |
 
 Grader fixes made after the first pass (model was right, grader was strict): JSON-formatted shape counts, full month names in chart table, zero counts in parse_log, and the newer vLLM `structured_outputs` parameter replacing `guided_choice` / `guided_regex`.
+
+## τ²-bench (real tau2-bench, Qwen as agent AND user simulator, thinking off, 1 trial, seed 300)
+
+| domain | tasks | pass^1 | DB match | write actions correct | read actions correct |
+|---|---|---|---|---|---|
+| airline | 50 | **0.74** | 38/50 (76%) | 33/49 (67%) | 84/91 (92%) |
+
+Run: `python tau_run.py --domain airline --trials 1 --concurrency 3` (2026-09-19). All 50 conversations ended by the user simulator
+normally (no step-limit or error terminations). Note the user simulator is also Qwen3.8-27B; the official leaderboard uses a
+stronger simulator, so numbers are indicative, not directly comparable.
