@@ -58,11 +58,16 @@ telecom in simulated mode.
 | domain | pass^1 | notes |
 |---|---|---|
 | airline | 0.74 (37/50) | reads 92% correct, writes 67%, DB match 76%, all runs ended normally |
-| retail | running | |
+| retail | 0.79 (90/114) | gpt-4.1 judge for the 40 NL-assertion tasks; misses are transaction bookkeeping (duplicate writes, wrong op for order status, needless transfers) |
 
 ## Reading a failure
 `tau2 view` → pick the run → the failed task shows the expected vs actual DB diff and the conversation. Typical airline
 misses: wrong payment method on a change, a cancellation that policy forbids, or missing a required `send_certificate`.
+
+## The judge
+Retail tasks with `NL_ASSERTION` in their reward basis (40/114) are graded by an LLM judge; tau2 defaults it to gpt-4.1. Without an
+OpenAI key those simulations die as `infrastructure_error` (looks like a model failure but isn't). With `OPENAI_API_KEY` in `.env`
+the judge is gpt-4.1 (official); otherwise our endpoint judges. `tau_report.py --rejudge` re-grades saved conversations without re-running them.
 
 ## Caveats
 - The user simulator matters: a weak simulator can hallucinate details and make tasks unsolvable or trivially easy.

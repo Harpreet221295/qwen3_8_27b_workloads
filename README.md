@@ -6,6 +6,7 @@
   <img alt="tau2-bench" src="https://img.shields.io/badge/%CF%84%C2%B2--bench-v1.0.1%20(submodule)-8a2be2">
   <img alt="Workloads" src="https://img.shields.io/badge/workload%20cases-57%2F60-2ea44f">
   <img alt="Airline" src="https://img.shields.io/badge/%CF%84%C2%B2%20airline%20pass%5E1-0.74-2ea44f">
+  <img alt="Retail" src="https://img.shields.io/badge/%CF%84%C2%B2%20retail%20pass%5E1-0.79-2ea44f">
 </p>
 
 **See what a self-hosted model can actually do, not just its score.** This repo points at a [Qwen3.8-27B endpoint](https://github.com/Harpreet221295/qwen3_8_27b_vllm_server)
@@ -65,9 +66,9 @@ Vision tests use generated images with known ground truth, so they self-grade. D
 | Domain | Tasks | pass^1 | Notes |
 |---|---|---|---|
 | airline | 50 | **0.74** | thinking off, seed 300, Qwen also as user simulator; reads 92% correct, writes 67% |
-| retail | 114 | running | |
+| retail | 114 | **0.79** | thinking off, seed 300, Qwen user simulator, gpt-4.1 NL judge; DB match 82%, writes 86% |
 
-Indicative, not leaderboard: the official numbers use a stronger user simulator.
+Indicative, not leaderboard: the official numbers use gpt-4.1 as the user simulator (`tau_run.py --user-model gpt-4.1-2025-04-14` reproduces that setup).
 
 ## Quick start
 

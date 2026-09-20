@@ -24,7 +24,10 @@ Grader fixes made after the first pass (model was right, grader was strict): JSO
 | domain | tasks | pass^1 | DB match | write actions correct | read actions correct |
 |---|---|---|---|---|---|
 | airline | 50 | **0.74** | 38/50 (76%) | 33/49 (67%) | 84/91 (92%) |
+| retail | 114 | **0.79** (90/114) | 94/114 (82%) | 150/174 (86%) | ~93% |
 
-Run: `python tau_run.py --domain airline --trials 1 --concurrency 3` (2026-09-19). All 50 conversations ended by the user simulator
+Runs: `python tau_run.py --domain airline --trials 1 --concurrency 3` (2026-09-19); retail = 74 tasks without NL assertions + 40 with
+(the latter re-judged with gpt-4.1 via `tau_report.py --rejudge`; Qwen-as-judge and gpt-4.1 agreed on all 40). Retail failure types: extra/duplicate
+writes, wrong operation for the order status (modify vs cancel vs exchange), unnecessary transfer to a human, one of several requests dropped. All 50 conversations ended by the user simulator
 normally (no step-limit or error terminations). Note the user simulator is also Qwen3.8-27B; the official leaderboard uses a
 stronger simulator, so numbers are indicative, not directly comparable.
