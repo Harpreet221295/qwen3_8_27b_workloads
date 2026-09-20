@@ -108,7 +108,9 @@ async def info():
 async def domain_info(domain: str):
     env = build_environment(domain)
     tools = [{"name": t.name, "description": (t.openai_schema.get("function", {}).get("description") or "")[:200]} for t in env.get_tools()]
-    return {"domain": domain, "policy": env.get_policy(), "tools": tools, "user_tools": [t.name for t in env.get_user_tools()]}
+    try: user_tools = [t.name for t in env.get_user_tools()]
+    except Exception: user_tools = []           # airline/retail: the customer has no tools
+    return {"domain": domain, "policy": env.get_policy(), "tools": tools, "user_tools": user_tools}
 
 
 @app.get("/api/tasks/{domain}")
