@@ -75,6 +75,9 @@ $('#tabRes').onclick=()=>{$('#chat').classList.add('hide');$('#results').classLi
 $('#attach').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{pendingImg=rd.result;$('#thumbs').innerHTML=`<img src="${pendingImg}" title="attached">`};rd.readAsDataURL(f);e.target.value=''};
 $('#clear').onclick=()=>{history=[];log.innerHTML=''};
+// #demo → replay a recorded conversation (no model calls), used for screenshots/docs
+if(location.hash.startsWith('#demo'))fetch('/api/demo').then(r=>r.json()).then(turns=>{for(const t of turns){addUser(t.user,t.image||null);
+  const m=el(`<div class="msg"><div class="who">qwen3.8-27b · ${t.mode||'off'} · replay</div>${t.reasoning?`<details class="think" open><summary>thinking (${t.reasoning.length} chars)</summary><div class="tt">${escape(t.reasoning)}</div></details>`:''}<div class="tools">${(t.tools||[]).map(x=>`<div class="tool">🔧 ${escape(x.name)}(${escape(JSON.stringify(x.args))})\n→ ${escape(JSON.stringify(x.result))}</div>`).join('')}</div><div class="md">${renderMd(t.answer)}</div><div class="stats">${escape(t.stats||'')}</div></div>`);log.appendChild(m)}});
 $('#input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
 $('#send').onclick=()=>ctrl?ctrl.abort():send();
 function el(html){const d=document.createElement('div');d.innerHTML=html;return d.firstElementChild}

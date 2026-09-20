@@ -1,0 +1,32 @@
+[
+ {
+  "user": "I have 250 EUR. Convert it to INR with the tool, then tell me in one line if that covers a 20,000 INR flight.",
+  "mode": "low",
+  "reasoning": "The user has 250 EUR which converts to 24,300 INR. They want to know if that covers a 20,000 INR flight. 24,300 > 20,000, so yes it does.\n",
+  "tools": [
+   {
+    "name": "convert_currency",
+    "args": {
+     "amount": 250,
+     "from_ccy": "EUR",
+     "to_ccy": "INR"
+    },
+    "result": {
+     "result": 24300.0,
+     "rate": 97.2,
+     "note": "fake demo rate"
+    }
+   }
+  ],
+  "answer": "\n\n250 EUR \u2248 24,300 INR \u2014 yes, that comfortably covers the 20,000 INR flight.",
+  "stats": "9.3s total \u00b7 97 tokens out"
+ },
+ {
+  "user": "State the Navier-Stokes momentum equation for incompressible flow in LaTeX and define each symbol in a short bullet list. Under 100 words.",
+  "mode": "off",
+  "reasoning": "",
+  "tools": [],
+  "answer": "$$ \\rho \\left( \\frac{\\partial \\mathbf{u}}{\\partial t} + \\mathbf{u} \\cdot \\nabla \\mathbf{u} \\right) = -\\nabla p + \\mu \\nabla^2 \\mathbf{u} + \\mathbf{f} $$\n\n*   $\\rho$: Fluid density\n*   $\\mathbf{u}$: Velocity vector field\n*   $t$: Time\n*   $p$: Pressure\n*   $\\mu$: Dynamic viscosity\n*   $\\nabla$: Del operator (gradient/divergence/Laplacian)\n*   $\\mathbf{f}$: External body force per unit volume",
+  "stats": "6.6s total \u00b7 152 tokens out \u00b7 ~23 tok/s"
+ }
+]

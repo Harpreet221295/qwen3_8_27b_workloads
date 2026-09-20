@@ -124,6 +124,12 @@ async def chat(req: Request):
     return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
+@app.get("/api/demo")
+async def demo():
+    p = STATIC / "demo_conversation.json"
+    return json.loads(p.read_text()) if p.exists() else []
+
+
 @app.get("/api/results")
 async def results_list():
     out = []

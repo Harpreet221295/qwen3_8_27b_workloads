@@ -63,10 +63,13 @@ fetch('/api/info').then(r=>r.json()).then(i=>{DOMAINS=i.domains;$('#status').tex
   $('#nav').innerHTML=DOMAINS.map(d=>`<button data-d="${d}" ${d===domain?'class="on"':''}>${d}</button>`).join('')+'<button data-d="results">Results</button>';
   document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));
     if(b.dataset.d==='results'){$('#page-run').classList.add('hide');$('#page-results').classList.remove('hide');loadResults()}else{$('#page-results').classList.add('hide');$('#page-run').classList.remove('hide');domain=b.dataset.d;loadTasks()}});
-  loadTasks()});
-async function loadTasks(){const r=await (await fetch(`/api/tasks/${domain}?q=${encodeURIComponent($('#q').value)}`)).json();tasks=r.tasks;
+  loadTasks().then(async()=>{const H=Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(kv=>kv.split('=')));
+    if(H.task)pick(decodeURIComponent(H.task));
+    if(H.run){const d=await (await fetch(`/api/results/${domain}/${H.run}`)).json();feed.innerHTML=`<div class="status">replay · ${domain} / task ${esc(d.task_id)} · customer ${d.mode} · agent thinking ${d.agent_thinking}</div>`+d.messages.map(renderMsg).join('');
+      const i=d.reward_info||{};feed.appendChild(el(`<div class="grade ${d.reward>=1?'ok':'bad'}">${d.reward>=1?'✅ PASS':'❌ FAIL'} · reward ${d.reward} · ${esc(d.termination.split('.').pop())} · ${d.duration_s}s<div class="d">DB match: ${i.db_check?i.db_check.db_match:'n/a'} · action checks: ${i.action_checks?i.action_checks.map(a=>(a.action_match?'✓':'✗')+' '+a.action.name).join(', '):'n/a'}</div></div>`))}})});
+async function loadTasks(){ return (async()=>{const r=await (await fetch(`/api/tasks/${domain}?q=${encodeURIComponent($('#q').value)}`)).json();tasks=r.tasks;
   $('#tasklist').innerHTML=`<div class="titem" style="color:var(--mut)">${r.shown} of ${r.total} tasks</div>`+tasks.map(t=>`<div class="titem" data-id="${esc(t.id)}"><b>${esc(t.id)}</b> <span class="m">${esc((t.purpose||t.reason_for_call||'').slice(0,90))}</span><div class="m">${(t.expected_actions||[]).length} expected actions · ${(t.reward_basis||[]).join(',')}${t.persona?' · persona':''}</div></div>`).join('');
-  document.querySelectorAll('.titem[data-id]').forEach(d=>d.onclick=()=>pick(d.dataset.id))}
+  document.querySelectorAll('.titem[data-id]').forEach(d=>d.onclick=()=>pick(d.dataset.id))})()}
 $('#q').oninput=()=>loadTasks();
 function pick(id){task=tasks.find(t=>t.id===id);document.querySelectorAll('.titem').forEach(d=>d.classList.toggle('on',d.dataset.id===id));
   $('#taskcard').innerHTML=`<b>Task ${esc(task.id)}</b>${task.purpose?`\n<b>purpose</b> ${esc(task.purpose)}`:''}\n<b>who you are</b> ${esc(task.known_info||'—')}\n<b>reason for call</b> ${esc(task.reason_for_call||'—')}\n<b>your script</b> ${esc(task.task_instructions||'—')}${task.unknown_info?`\n<b>you don't know</b> ${esc(task.unknown_info)}`:''}${task.persona?`\n<b>persona</b> ${esc(task.persona.trim())}`:''}`;
