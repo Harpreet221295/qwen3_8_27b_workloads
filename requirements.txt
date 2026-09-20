@@ -6,3 +6,6 @@ httpx>=0.27
 tiktoken>=0.7
 fastapi>=0.115
 uvicorn>=0.30
+
+# tau2-bench (τ²-bench console + batch runs)
+# pip install -e third_party/tau2-bench websockets audioop-lts

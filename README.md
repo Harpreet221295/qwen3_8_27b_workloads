@@ -19,6 +19,21 @@ Open http://localhost:7860. Streams the answer and the model's thinking live, th
 (off / low / medium / xhigh), image attach, optional demo tools (weather, currency, calculator), and a tab
 that browses `results/*.jsonl`. The API key stays in the local server.
 
+## τ²-bench console (tool-agent-user multi-turn eval)
+Uses the real [tau2-bench](https://github.com/sierra-research/tau2-bench) (git submodule in `third_party/`): its airline / retail /
+telecom / mock domains, tasks, policies, LLM user simulator, orchestrator and evaluator. Qwen plays the agent; the customer is
+either tau2's simulator (also Qwen) or you.
+```bash
+git submodule update --init
+.venv/bin/pip install -e third_party/tau2-bench websockets audioop-lts
+.venv/bin/python -m uvicorn tau_ui.app:app --port 7862        # http://localhost:7862
+.venv/bin/python tau_run.py --domain airline --num-tasks 10 --trials 3   # batch, pass^k, via tau2's runner
+.venv/bin/tau2 view                                                         # tau2's own result browser
+```
+Console: domain tabs, task list with the customer's script and the expected actions (spoiler), "simulated" or
+"I play the customer" mode, every agent/customer/tool message as it happens, then tau2's reward with DB / action /
+NL-assertion / communicate checks. Single runs are saved under `results/tau/`.
+
 ## Run
 ```bash
 python run_all.py                 # everything, summary table at the end

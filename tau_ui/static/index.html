@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>τ²-bench console</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<style>
+:root{--bg:#0f1117;--panel:#171a23;--line:#262b38;--fg:#e6e8ef;--mut:#8b93a7;--acc:#7c9cff;--think:#c9a86a;--ok:#4cc38a;--err:#ef6b73;--tool:#6fb3d2;--user:#d48cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,Inter,Segoe UI,sans-serif;height:100vh;display:flex;flex-direction:column}
+header{display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}header b{font-size:15px}header .st{color:var(--mut);font-size:12px;margin-left:auto}
+nav button{background:none;border:1px solid var(--line);color:var(--fg);padding:5px 10px;border-radius:6px;cursor:pointer;text-transform:capitalize}nav button.on{background:var(--acc);color:#000;border-color:var(--acc)}
+main{flex:1;min-height:0}.page{display:grid;grid-template-columns:360px 1fr;height:100%;min-height:0}.hide{display:none!important}
+aside{border-right:1px solid var(--line);padding:12px;overflow:auto;background:var(--panel);display:flex;flex-direction:column;gap:8px}
+aside label{display:block;color:var(--mut);font-size:12px;margin:4px 0 2px}aside select,aside input{width:100%;background:#0d0f15;border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:6px}
+.row{display:flex;gap:8px}.row>*{flex:1}.btn{background:var(--acc);color:#000;border:0;border-radius:8px;padding:9px;font-weight:600;cursor:pointer;width:100%}.btn.ghost{background:none;border:1px solid var(--line);color:var(--fg)}.btn.stop{background:var(--err);color:#fff}
+#tasklist{flex:1;min-height:120px;overflow:auto;border:1px solid var(--line);border-radius:6px}.titem{padding:6px 8px;border-bottom:1px solid var(--line);cursor:pointer;font-size:12px}.titem:hover{background:#1e2230}.titem.on{background:#1b2340;border-left:3px solid var(--acc)}.titem .m{color:var(--mut);font-size:11px}
+.card{background:#0d0f15;border:1px solid var(--line);border-radius:6px;padding:8px;font-size:12px;white-space:pre-wrap;max-height:260px;overflow:auto}.card b{color:var(--mut);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.04em}
+details summary{cursor:pointer;color:var(--mut);font-size:12px}
+.work{display:flex;flex-direction:column;min-height:0}.feed{flex:1;overflow:auto;padding:16px 20px}
+footer{border-top:1px solid var(--line);padding:10px 20px 12px;background:var(--panel)}.box{max-width:1000px;margin:0 auto;display:flex;gap:8px;align-items:flex-end}
+.box textarea{flex:1;background:#0d0f15;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:10px 12px;min-height:46px;max-height:200px;resize:vertical;font-size:13.5px;font-family:inherit}
+.box button{background:var(--acc);color:#000;border:0;border-radius:10px;padding:12px 18px;font-weight:600;cursor:pointer;white-space:nowrap}
+.bub{max-width:1000px;margin:0 0 10px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel)}.bub .hd{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.bub.user{border-color:#4b3566;background:#1d1626;margin-left:120px}.bub.user .hd{color:var(--user)}.bub.agent{margin-right:120px}.bub.agent .hd{color:var(--acc)}
+.think{border-left:3px solid var(--think);background:#1a1810;color:#d8c9a3;padding:6px 10px;border-radius:6px;margin:6px 0;white-space:pre-wrap;font-size:12.5px;max-height:200px;overflow:auto}
+.tc{border-left:3px solid var(--tool);background:#101a22;padding:6px 10px;border-radius:6px;margin:6px 0;font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap}.tc .n{color:var(--tool);font-weight:700}
+.tc.write{border-left-color:#f0b35a}.tc.write .n{color:#f0b35a}
+.out{color:#b7c2d0;border-left:3px solid #2f3b4a;background:#0d1117;padding:6px 10px;border-radius:6px;margin:4px 0 8px;font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:160px;overflow:auto}.out.err{border-left-color:var(--err);color:#f2b3b7}
+.status{color:var(--mut);font-size:12px;margin:6px 0}.err{color:var(--err)}
+.livebar{max-width:1000px;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mut);padding:2px 12px 10px}.livebar .dot{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse 1s infinite}.livebar .lbl{color:var(--fg)}.livebar .tm{margin-left:auto}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+.grade{border-radius:10px;padding:10px 14px;margin:10px 0;max-width:1000px;font-weight:600}.grade.ok{background:#12291d;border:1px solid var(--ok)}.grade.bad{background:#2b1518;border:1px solid var(--err)}.grade .d{font-weight:400;font-size:12.5px;margin-top:6px}
+.grade pre{font-weight:400;font-size:12px;white-space:pre-wrap;max-height:220px;overflow:auto;margin:4px 0 0;background:#0d0f15;padding:6px;border-radius:6px}
+table{border-collapse:collapse;width:100%;max-width:1100px}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--mut)}tr.c{cursor:pointer}tr.c:hover{background:var(--panel)}
+.md p{margin:.3em 0}.md pre{background:#0d0f15;padding:8px;border-radius:6px;overflow:auto;font-size:12px}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center}.modal>div{background:var(--panel);border:1px solid var(--line);border-radius:12px;width:min(900px,92vw);max-height:85vh;overflow:auto;padding:18px}
+</style></head><body>
+<header><b>τ²-bench console · Qwen3.8-27B</b><nav id="nav"></nav><span class="st" id="status">…</span></header>
+<main>
+<div class="page" id="page-run">
+  <aside>
+    <div class="row"><input id="q" placeholder="search tasks…"><button class="btn ghost" id="policyBtn" style="width:auto">Policy & tools</button></div>
+    <div id="tasklist"></div>
+    <div class="card" id="taskcard">Pick a task.</div>
+    <details id="spoiler"><summary>Expected actions (spoiler)</summary><div class="card" id="expected"></div></details>
+    <div class="row"><div><label>Customer</label><select id="mode"><option value="sim">simulated (Qwen)</option><option value="human">I play the customer</option></select></div>
+    <div><label>Agent thinking</label><select id="athink"><option value="off">off</option><option value="low">low</option><option value="medium">medium</option><option value="xhigh">xhigh</option></select></div></div>
+    <div class="row"><div><label>User-sim thinking</label><select id="uthink"><option value="off">off</option><option value="low">low</option></select></div><div><label>Max steps</label><input id="steps" type="number" value="60"></div><div><label>Seed</label><input id="seed" type="number" value="0"></div></div>
+    <button class="btn" id="run">▶ Run task</button>
+  </aside>
+  <div class="work"><div class="feed" id="feed"><div class="status">Pick a domain tab and a task. "Simulated" lets Qwen play the customer from the task's script; "I play the customer" hands you the keyboard — the script on the left tells you who you are and what you want.</div></div>
+    <footer><div class="box"><textarea id="input" placeholder="(only when you play the customer) say something to the agent… Enter to send"></textarea><button id="send">Send</button><button id="finish" class="btn ghost" style="width:auto;padding:12px 14px">End & grade</button></div></footer>
+  </div>
+</div>
+<div class="hide" id="page-results" style="padding:16px 20px;overflow:auto;height:100%"><div id="summary"></div><div id="rows"></div><div id="detail"></div></div>
+<div class="modal hide" id="modal"><div><div style="display:flex;justify-content:space-between"><b id="mtitle"></b><button class="btn ghost" style="width:auto" onclick="$('#modal').classList.add('hide')">close</button></div><div class="md" id="mbody"></div></div></div>
+</main>
+<script>
+const $=s=>document.querySelector(s);marked.setOptions({breaks:true});
+function esc(s){return (s??'').toString().replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function el(h){const d=document.createElement('div');d.innerHTML=h;return d.firstElementChild}
+let DOMAINS=[],domain='airline',tasks=[],task=null,job=null,mode='sim',t0=0,timer=null;const feed=$('#feed');
+const WRITE=/cancel|update|modify|exchange|return|book|create|delete|transfer|send_|toggle|enable|disable|reset|set_|suspend|resume|pay|refill|change/i;
+fetch('/api/info').then(r=>r.json()).then(i=>{DOMAINS=i.domains;$('#status').textContent=`${i.model} · ${i.base_url.replace('https://','')} · tau2 ${i.tau2_version}`;
+  $('#nav').innerHTML=DOMAINS.map(d=>`<button data-d="${d}" ${d===domain?'class="on"':''}>${d}</button>`).join('')+'<button data-d="results">Results</button>';
+  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));
+    if(b.dataset.d==='results'){$('#page-run').classList.add('hide');$('#page-results').classList.remove('hide');loadResults()}else{$('#page-results').classList.add('hide');$('#page-run').classList.remove('hide');domain=b.dataset.d;loadTasks()}});
+  loadTasks()});
+async function loadTasks(){const r=await (await fetch(`/api/tasks/${domain}?q=${encodeURIComponent($('#q').value)}`)).json();tasks=r.tasks;
+  $('#tasklist').innerHTML=`<div class="titem" style="color:var(--mut)">${r.shown} of ${r.total} tasks</div>`+tasks.map(t=>`<div class="titem" data-id="${esc(t.id)}"><b>${esc(t.id)}</b> <span class="m">${esc((t.purpose||t.reason_for_call||'').slice(0,90))}</span><div class="m">${(t.expected_actions||[]).length} expected actions · ${(t.reward_basis||[]).join(',')}${t.persona?' · persona':''}</div></div>`).join('');
+  document.querySelectorAll('.titem[data-id]').forEach(d=>d.onclick=()=>pick(d.dataset.id))}
+$('#q').oninput=()=>loadTasks();
+function pick(id){task=tasks.find(t=>t.id===id);document.querySelectorAll('.titem').forEach(d=>d.classList.toggle('on',d.dataset.id===id));
+  $('#taskcard').innerHTML=`<b>Task ${esc(task.id)}</b>${task.purpose?`\n<b>purpose</b> ${esc(task.purpose)}`:''}\n<b>who you are</b> ${esc(task.known_info||'—')}\n<b>reason for call</b> ${esc(task.reason_for_call||'—')}\n<b>your script</b> ${esc(task.task_instructions||'—')}${task.unknown_info?`\n<b>you don't know</b> ${esc(task.unknown_info)}`:''}${task.persona?`\n<b>persona</b> ${esc(task.persona.trim())}`:''}`;
+  $('#expected').innerHTML=(task.expected_actions.length?task.expected_actions.map(a=>`${esc(a.name)}(${esc(JSON.stringify(a.arguments))})`).join('\n'):'(no DB-changing action expected — agent should NOT change anything)')+(task.nl_assertions.length?'\n\nNL assertions:\n'+task.nl_assertions.map(esc).join('\n'):'')+(task.communicate_info.length?'\n\nMust communicate: '+task.communicate_info.map(esc).join(', '):'');
+  $('#spoiler').open=false}
+$('#policyBtn').onclick=async()=>{const d=await (await fetch('/api/domain/'+domain)).json();$('#mtitle').textContent=domain+' policy (what the agent is told)';
+  $('#mbody').innerHTML=marked.parse(d.policy)+'<h3>Tools</h3><ul>'+d.tools.map(t=>`<li><code>${esc(t.name)}</code> — ${esc(t.description)}</li>`).join('')+'</ul>'+(d.user_tools.length?`<p>User (customer) tools: ${d.user_tools.map(esc).join(', ')}</p>`:'');$('#modal').classList.remove('hide')};
+function bar(){const b=el('<div class="livebar"><span class="dot"></span><span class="lbl"></span><span class="tm"></span></div>');feed.appendChild(b);return b}
+function renderMsg(m){
+  if(m.role==='tool'){return `<div class="out ${m.error?'err':''}">${esc(m.content)}</div>`}
+  const who=m.role==='user'?'customer':'agent';let h=`<div class="bub ${who==='customer'?'user':'agent'}"><div class="hd">${who}${m.gen_s?` · ${m.gen_s.toFixed(1)}s`:''}${m.usage?.completion_tokens?` · ${m.usage.completion_tokens} tok`:''}</div>`;
+  if(m.reasoning)h+=`<div class="think">${esc(m.reasoning)}</div>`;
+  if(m.content)h+=`<div class="md">${marked.parse(m.content)}</div>`;
+  for(const tc of (m.tool_calls||[]))h+=`<div class="tc ${WRITE.test(tc.name)?'write':''}"><span class="n">🔧 ${esc(tc.name)}</span> ${esc(JSON.stringify(tc.arguments))}</div>`;
+  return h+'</div>'}
+$('#run').onclick=async()=>{
+  if(job){fetch(`/api/jobs/${job}/stop`,{method:'POST'});return}
+  if(!task){alert('pick a task');return}
+  mode=$('#mode').value;feed.innerHTML='';$('#run').textContent='■ Stop';$('#run').classList.add('stop');
+  feed.appendChild(el(`<div class="status">${domain} / task ${esc(task.id)} · customer: ${mode==='sim'?'simulated by Qwen':'you'} · agent thinking ${$('#athink').value}</div>`));
+  if(mode==='human')feed.appendChild(el(`<div class="status">You are the customer. Script: <i>${esc(task.known_info||'')} ${esc(task.reason_for_call||'')}</i></div>`));
+  let live=bar();t0=Date.now();timer=setInterval(()=>{live.querySelector('.tm').textContent=((Date.now()-t0)/1000).toFixed(0)+'s'},500);
+  const body={domain,task_id:task.id,mode,agent_thinking:$('#athink').value,user_thinking:$('#uthink').value,max_steps:+$('#steps').value,seed:+$('#seed').value};
+  try{const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf='';
+    while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+      while((i=buf.indexOf('\n\n'))>=0){const blk=buf.slice(0,i);buf=buf.slice(i+2);const ev=/event: (\w+)/.exec(blk)?.[1];if(!ev)continue;const d=JSON.parse(/data: (.*)/s.exec(blk)[1]);
+        if(ev==='job')job=d.job;
+        else if(ev==='status'){live.querySelector('.lbl').textContent=d.t;if(d.to==='user'&&mode==='human')$('#input').focus()}
+        else if(ev==='message'){feed.insertBefore(el(renderMsg(d)),live)}
+        else if(ev==='reward'){const i=d.info;const ok=d.reward>=1;
+          feed.insertBefore(el(`<div class="grade ${ok?'ok':'bad'}">${ok?'✅ PASS':'❌ FAIL'} · reward ${d.reward} · ${d.termination} · ${d.duration_s}s<div class="d">DB match: ${i.db_check?i.db_check.db_match:'n/a'} · action checks: ${i.action_checks?i.action_checks.map(a=>(a.action_match?'✓':'✗')+' '+a.action.name).join(', '):'n/a'} · NL: ${i.nl_assertions?i.nl_assertions.map(a=>(a.met?'✓':'✗')+' '+a.nl_assertion).join(' | '):'n/a'} · communicate: ${i.communicate_checks?i.communicate_checks.map(c=>(c.met?'✓':'✗')+' '+c.info).join(', '):'n/a'}</div><details><summary>expected vs agent write actions</summary><pre>expected:\n${esc(d.expected_actions.map(a=>a.name+' '+JSON.stringify(a.arguments)).join('\n')||'(none)')}\n\nagent called:\n${esc(d.agent_actions.filter(a=>WRITE.test(a.name)).map(a=>a.name+' '+JSON.stringify(a.arguments)).join('\n')||'(no write actions)')}</pre></details></div>`),live)}
+        else if(ev==='error'){feed.insertBefore(el(`<div class="status err">${esc(d.message)}</div>`),live)}
+        else if(ev==='saved'){feed.insertBefore(el(`<div class="status">saved ${esc(d.path)}</div>`),live)}
+        feed.scrollTop=feed.scrollHeight}}
+  }catch(e){feed.appendChild(el(`<div class="status err">${esc(e)}</div>`))}
+  clearInterval(timer);live.remove();job=null;$('#run').textContent='▶ Run task';$('#run').classList.remove('stop')};
+async function say(){const t=$('#input').value.trim();if(!t||!job||mode!=='human')return;$('#input').value='';await fetch(`/api/jobs/${job}/say`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})})}
+$('#send').onclick=say;$('#input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();say()}});
+$('#finish').onclick=()=>{if(job)fetch(`/api/jobs/${job}/stop`,{method:'POST'})};
+async function loadResults(){const r=await (await fetch('/api/results')).json();
+  $('#summary').innerHTML='<h3>Simulated-user runs</h3>'+(r.summary.length?`<table><tr><th>domain</th><th>tasks</th><th>trials</th><th>pass@1</th><th>k</th><th>pass^k</th></tr>${r.summary.map(s=>`<tr><td>${s.domain}</td><td>${s.tasks}</td><td>${s.trials}</td><td>${s.pass_at_1}</td><td>${s.k}</td><td>${s.pass_hat_k??'-'}</td></tr>`).join('')}</table>`:'<p>no runs yet</p>');
+  $('#rows').innerHTML='<h3>All runs</h3><table><tr><th>domain</th><th>task</th><th>customer</th><th>thinking</th><th>reward</th><th>end</th><th>msgs</th><th>s</th></tr>'+r.rows.map(x=>`<tr class="c" data-d="${x.domain}" data-f="${x.file}"><td>${x.domain}</td><td>${esc(x.task_id).slice(0,50)}</td><td>${x.mode}</td><td>${x.agent_thinking}</td><td>${x.reward>=1?'✅':'❌'} ${x.reward}</td><td>${x.termination}</td><td>${x.n_msgs}</td><td>${x.duration_s}</td></tr>`).join('')+'</table>';
+  document.querySelectorAll('tr.c').forEach(tr=>tr.onclick=async()=>{const d=await (await fetch(`/api/results/${tr.dataset.d}/${tr.dataset.f}`)).json();$('#detail').innerHTML=`<h3>${esc(d.task_id)}</h3>`+d.messages.map(renderMsg).join('')})}
+</script></body></html>
