@@ -16,9 +16,6 @@ BASE_URL = os.environ.get("QWEN_BASE_URL", "http://localhost:8000/v1")
 API_KEY = os.environ.get("QWEN_API_KEY", "none")
 MODEL = os.environ.get("QWEN_MODEL", "qwen3.8-27b")
 LLM = f"openai/{MODEL}"
-# LiteLLM fallback: on some retry paths it drops the api_key kwarg and then fails with "Missing credentials";
-# exposing the same values as env vars makes those retries succeed.
-os.environ.setdefault("OPENAI_API_KEY", API_KEY); os.environ.setdefault("OPENAI_API_BASE", BASE_URL); os.environ.setdefault("OPENAI_BASE_URL", BASE_URL)
 RESULTS = Path(__file__).resolve().parent.parent / "results" / "tau"
 STATIC = Path(__file__).resolve().parent / "static"
 
@@ -36,6 +33,13 @@ from tau2.runner import build_environment, build_agent, build_user
 from tau2.orchestrator import orchestrator as om
 from tau2.orchestrator.orchestrator import Orchestrator
 from tau2.evaluator.evaluator import EvaluationType, evaluate_simulation
+
+# --- NL-assertion judge: tau2 defaults to gpt-4.1 (needs an OpenAI key). Route it to our endpoint unless TAU2_JUDGE_* say otherwise.
+from tau2.evaluator import evaluator_nl_assertions as _nl
+_nl.DEFAULT_LLM_NL_ASSERTIONS = os.environ.get("TAU2_JUDGE_MODEL", LLM)
+_nl.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {"temperature": 0.0, "api_base": os.environ.get("TAU2_JUDGE_API_BASE", BASE_URL),
+                                      "api_key": os.environ.get("TAU2_JUDGE_API_KEY", API_KEY),
+                                      "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}}
 from tau2.user.user_simulator import UserSimulator, UserState
 from tau2.data_model.message import UserMessage, AssistantMessage, ToolMessage
 
