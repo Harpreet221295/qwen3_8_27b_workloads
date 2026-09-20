@@ -16,6 +16,9 @@ BASE_URL = os.environ.get("QWEN_BASE_URL", "http://localhost:8000/v1")
 API_KEY = os.environ.get("QWEN_API_KEY", "none")
 MODEL = os.environ.get("QWEN_MODEL", "qwen3.8-27b")
 LLM = f"openai/{MODEL}"
+# LiteLLM fallback: on some retry paths it drops the api_key kwarg and then fails with "Missing credentials";
+# exposing the same values as env vars makes those retries succeed.
+os.environ.setdefault("OPENAI_API_KEY", API_KEY); os.environ.setdefault("OPENAI_API_BASE", BASE_URL); os.environ.setdefault("OPENAI_BASE_URL", BASE_URL)
 RESULTS = Path(__file__).resolve().parent.parent / "results" / "tau"
 STATIC = Path(__file__).resolve().parent / "static"
 
